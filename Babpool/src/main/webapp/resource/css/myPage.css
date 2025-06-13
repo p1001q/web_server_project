@@ -1,0 +1,149 @@
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #f8f5eb;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+.main-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 90%;
+    max-width: 960px;
+    padding: 10px 20px;
+}
+
+.logo-area {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.logo-area img {
+    height: 36px;
+}
+
+.logo-title {
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: #1b5e20;
+}
+
+.header-icons {
+    display: flex;
+    gap: 15px;
+}
+
+.header-icon-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 0.85rem;
+    cursor: pointer;
+}
+
+.mypage-container {
+    width: 950px;
+    margin-top: 20px;
+    background: #fff;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 0 8px rgba(0,0,0,0.1);
+}
+
+.profile-section {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 20px;
+}
+
+.profile-img {
+    width: 90px;
+    height: 90px;
+    object-fit: cover;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid #ccc;
+}
+
+#profileImage {
+    display: none;
+}
+
+.user-info {
+    flex: 1;
+}
+
+.nickname {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin: 4px 0;
+}
+
+.email {
+    color: #666;
+    font-size: 0.95rem;
+}
+
+.profile-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.profile-buttons button {
+    padding: 5px 10px;
+    background-color: #76B82A;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.profile-buttons button:hover {
+    background-color: #5c8a1b;
+}
+
+.favorite-section, .review-section {
+    margin-top: 20px;
+}
+
+.favorite-list {
+    display: flex;
+    gap: 15px;
+}
+
+.favorite-item {
+    background: #f0f0f0;
+    border-radius: 6px;
+    padding: 10px;
+    width: 120px;
+    text-align: center;
+}
+
+.review-item {
+    background: #fefefe;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.review-item a {
+    font-size: 0.85rem;
+    color: #0077cc;
+    text-decoration: underline;
+}
+
+.page-footer {
+    font-size: 0.75rem;
+    color: #888;
+    padding: 10px 15px;
+    text-align: left;
+}

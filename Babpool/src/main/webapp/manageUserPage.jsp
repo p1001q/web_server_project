@@ -1,0 +1,100 @@
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>회원 관리</title>
+    <link rel="stylesheet" href="<%=request.getContextPath()%>/resource/css/manageUser.css" />
+</head>
+<body>
+    <div class="manage-container">
+        <h2>회원 관리</h2>
+
+        <!-- 전체 조회 -->
+        <form action="<%=request.getContextPath()%>/UserSelectAllServlet" method="get">
+            <button type="submit" class="btn">전체 조회</button>
+        </form>
+
+        <!-- 선택 조회 -->
+        <form action="<%=request.getContextPath()%>/UserSelectByIdServlet" method="get">
+            <input type="number" name="userId" placeholder="회원 ID 입력" required />
+            <button type="submit" class="btn">선택 조회</button>
+        </form>
+
+        <!-- 수정 -->
+        <form action="<%=request.getContextPath()%>/UserUpdateServlet" method="post">
+            <input type="number" name="userId" placeholder="수정할 회원 ID" required />
+            <input type="text" name="nickname" placeholder="닉네임 수정" />
+            <button type="submit" class="btn">수정</button>
+        </form>
+
+        <c:if test="${not empty updateResult}">
+            <div class="result-message">
+                <c:choose>
+                    <c:when test="${updateResult}">
+                        ✅ 닉네임 수정 성공
+                    </c:when>
+                    <c:otherwise>
+                        ❌ 닉네임 수정 실패
+                    </c:otherwise>
+                </c:choose>
+            </div>
+        </c:if>
+
+        <!-- 삭제 -->
+        <form action="<%=request.getContextPath()%>/UserDeleteServlet" method="post">
+            <input type="number" name="userId" placeholder="삭제할 회원 ID" required />
+            <button type="submit" class="btn">삭제</button>
+        </form>
+
+        <c:if test="${not empty deleteResult}">
+            <div class="result-message">
+                <c:choose>
+                    <c:when test="${deleteResult}">
+                        ✅ 회원 삭제 성공
+                    </c:when>
+                    <c:otherwise>
+                        ❌ 회원 삭제 실패
+                    </c:otherwise>
+                </c:choose>
+            </div>
+        </c:if>
+
+        <!-- 전체 조회 결과 -->
+        <c:if test="${not empty userList}">
+            <h3>전체 회원 목록</h3>
+            <table class="simple-table">
+                <tr>
+                    <th>ID</th>
+                    <th>닉네임</th>
+                    <th>이메일</th>
+                    <th>가입일</th>
+                </tr>
+                <c:forEach var="user" items="${userList}">
+                    <tr>
+                        <td>${user.userId}</td>
+                        <td>${user.nickname}</td>
+                        <td>${user.email}</td>
+                        <td><fmt:formatDate value="${user.createdAt}" pattern="yyyy-MM-dd HH:mm" /></td>
+                    </tr>
+                </c:forEach>
+            </table>
+        </c:if>
+
+        <!-- 단일 조회 결과 -->
+        <c:if test="${not empty user}">
+            <h3>선택한 회원 정보</h3>
+            <div>
+                회원 ID: ${user.userId}<br>
+                닉네임: ${user.nickname}<br>
+                이메일: ${user.email}<br>
+                가입일: <fmt:formatDate value="${user.createdAt}" pattern="yyyy-MM-dd HH:mm" />
+            </div>
+        </c:if>
+
+    </div>
+</body>
+</html>
