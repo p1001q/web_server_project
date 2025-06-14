@@ -96,15 +96,6 @@
       </div>
     </aside>
 
-<!-- 수연 ✅ 디버깅용: storeId 확인 -->
-<%/*<div>
-  <h3>storeId 디버깅:</h3>
-  <c:forEach var="m" items="${markerList}">
-    storeId: ${m.storeId} <br/>
-  </c:forEach>
-</div>
-*/ %>
-
     <!-- ✅ 지도 영역 (동국 마커 출력 포함) -->
     <section class="map-section">
       <div id="map" style="width: 100%; height: 100%; border-radius: 12px;"></div>
@@ -170,6 +161,7 @@
 
 <aside class="top-list">
   <h3>서경인들의 맛집 TOP 3</h3>
+  
   <c:forEach var="store" items="${topStores}">
     <div class="top-card">
       <!-- 가게 상세 페이지로 이동할 수 있는 링크 추가 -->
@@ -193,17 +185,10 @@
             </div>
 
             <!-- 찜 개수 출력 -->
-            <div class="top-like">
-              <c:choose>
-                <c:when test="${isBookmarked}">
-                  <span class="heart">❤️</span> <!-- 찜 표시 되어 있으면 빨간 하트 -->
-                </c:when>
-                <c:otherwise>
-                  <span class="heart">🤍</span><!-- 찜 표시 안 되어 있으면 하얀 하트 -->
-                </c:otherwise>
-              </c:choose>
-              <span>${store.likeCount}</span>
-            </div>
+			<div class="top-like">
+			  <span class="heart">❤️</span>
+			  <span>${store.likeCount}</span>
+			</div>
 
             <!-- 카테고리 태그 출력 -->
             <div class="top-tag">#${store.categoryName}</div>
@@ -213,9 +198,6 @@
     </div>
   </c:forEach>
 </aside>
-
-
-
 
   <!--수연 ✅ 마스코트 영역 (공통 유지) -->
   <div class="mascot-area">
@@ -232,16 +214,6 @@
   </div>
 
   <script>
-    function toggleHeart(el) {
-      const countSpan = el.nextElementSibling;
-      let count = parseInt(countSpan.textContent);
-      if (el.textContent === '🤍') {
-        el.textContent = '❤️'; count++;
-      } else {
-        el.textContent = '🤍'; count--;
-      }
-      countSpan.textContent = count;
-    }
 
     function openHelp() {
       document.getElementById('helpOverlay').style.display = 'flex';

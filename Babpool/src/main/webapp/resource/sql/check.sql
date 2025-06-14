@@ -13,8 +13,6 @@ SELECT * FROM review_image;
 SELECT * FROM bookmark;
 SELECT * FROM store_category_map;
 SELECT * FROM store_tag_map;
-SELECT * FROM recommendation_log;
-SELECT * FROM user_language;
 SELECT * FROM marker;
 SELECT * FROM marker_tag_map;
 SELECT * FROM marker_category_map;

@@ -49,29 +49,32 @@
 <%@ include file="/headerFooter.jsp" %>
 
 <div class="review-container">
-    <form action="SubmitReviewServlet" method="post" enctype="multipart/form-data">
+    <form id="reviewForm" action="SubmitReviewServlet" method="post" enctype="multipart/form-data">
         <input type="hidden" name="userId" value="<%= userId %>">
         <input type="hidden" name="userNickname" value="<%= userNickname %>">
         <input type="hidden" name="storeId" value="<%= storeId %>">
 
         <h3><%= storeName %></h3>
 
-        <div class="star-rating">
-            <span class="star" data-value="1">☆</span>
-            <span class="star" data-value="2">☆</span>
-            <span class="star" data-value="3">☆</span>
-            <span class="star" data-value="4">☆</span>
-            <span class="star" data-value="5">☆</span>
-            <div class="rating-value" id="ratingValue">5.0</div>
-            <input type="hidden" name="rating" id="ratingInput" value="5.0">
-        </div>
+	    <div class="star-rating">
+		    <div class="stars-line">
+		        <span class="star" data-value="1">☆</span>
+		        <span class="star" data-value="2">☆</span>
+		        <span class="star" data-value="3">☆</span>
+		        <span class="star" data-value="4">☆</span>
+		        <span class="star" data-value="5">☆</span>
+		        <span class="rating-value" id="ratingValue">5.0</span>
+		    </div>
+		    <input type="hidden" name="rating" id="ratingInput" value="5.0">
+		</div>
+	
 
         <textarea name="reviewText" maxlength="1000" placeholder="건강한 리뷰를 작성해주세요!" oninput="updateCharCount()"></textarea>
         <div class="char-count" id="charCount">0 / 1000</div>
 
         <div class="image-upload">
-            <label>리뷰 사진<span id="imgCount">0/10</span></label>
-            <input type="file" name="images" id="images" multiple accept="image/*" onchange="previewImages(this)">
+            <label>리뷰 사진 (한 장만 골라 첨부해주세요.)</label>
+          <input type="file" id="imageInput" name="image" accept="image/*">
         </div>
 
         <div class="preview-area" id="previewArea"></div>
@@ -84,52 +87,49 @@
 </div>
 
 <script>
+// 글자수 카운팅
 function updateCharCount() {
-    const text = document.querySelector("textarea").value;
+    const text = document.querySelector("textarea").value || "";
     document.getElementById("charCount").textContent = `${text.length} / 1000`;
 }
 
-function previewImages(input) {
-    const files = input.files;
-    const preview = document.getElementById("previewArea");
-    const imgCount = document.getElementById("imgCount");
-    preview.innerHTML = "";
-    const max = Math.min(files.length, 10);
-    imgCount.textContent = `${max}/10`;
-
-    for (let i = 0; i < max; i++) {
+//미리보기 (한 장 전용)
+document.getElementById("imageInput").addEventListener("change", function(e) {
+    const file = e.target.files[0];
+    const previewArea = document.getElementById("previewArea");
+    previewArea.innerHTML = "";
+    if (file) {
         const reader = new FileReader();
         reader.onload = function(e) {
             const img = document.createElement("img");
             img.src = e.target.result;
-            preview.appendChild(img);
+            previewArea.appendChild(img);
         }
-        reader.readAsDataURL(files[i]);
-    }
-}
-
-document.addEventListener("DOMContentLoaded", function() {
-    const stars = document.querySelectorAll(".star");
-    const ratingInput = document.getElementById("ratingInput");
-    const ratingValue = document.getElementById("ratingValue");
-
-    updateStars(5);
-
-    stars.forEach(star => {
-        star.addEventListener("click", () => {
-            const score = parseInt(star.getAttribute("data-value"));
-            updateStars(score);
-            ratingInput.value = score.toFixed(1);
-            ratingValue.textContent = score.toFixed(1);
-        });
-    });
-
-    function updateStars(score) {
-        stars.forEach(star => {
-            star.textContent = (parseInt(star.getAttribute("data-value")) <= score) ? "⭐" : "☆";
-        });
+        reader.readAsDataURL(file);
     }
 });
+
+// ⭐⭐ 별점 이벤트 (최종 안정화 포인트)
+const stars = document.querySelectorAll(".star");
+const ratingInput = document.getElementById("ratingInput");
+const ratingValue = document.getElementById("ratingValue");
+updateStars(parseFloat(ratingInput.value));
+
+stars.forEach(star => {
+    star.addEventListener("click", () => {
+        const score = parseInt(star.getAttribute("data-value"));
+        updateStars(score);
+        ratingInput.value = score.toFixed(1);
+        ratingValue.textContent = score.toFixed(1);
+    });
+});
+
+function updateStars(score) {
+    stars.forEach(star => {
+        star.textContent = (parseInt(star.getAttribute("data-value")) <= score) ? "⭐" : "☆";
+    });
+}
+
 </script>
 
 </body>

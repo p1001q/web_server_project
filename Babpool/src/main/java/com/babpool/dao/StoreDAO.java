@@ -54,10 +54,15 @@ public class StoreDAO {
         StoreDTO store = null;
 
         try {
-            String sql = "SELECT * FROM store WHERE store_id = ?";
+            String sql = """
+                SELECT store_id, name, address, phone, open_time, rating_avg, review_count, like_count
+                FROM store
+                WHERE store_id = ?
+            """;
             pstmt = conn.prepareStatement(sql);
             pstmt.setInt(1, storeId);
             rs = pstmt.executeQuery();
+
             if (rs.next()) {
                 store = new StoreDTO();
                 store.setStoreId(rs.getInt("store_id"));
@@ -72,7 +77,6 @@ public class StoreDAO {
         } catch (SQLException ex) {
             LogFileFilter.getWriter().println("[StoreDAO] getStoreById() READ-Error");
             ex.printStackTrace(LogFileFilter.getWriter());
-
         } finally {
             try {
                 if (rs != null) rs.close();
@@ -80,10 +84,8 @@ public class StoreDAO {
             } catch (SQLException ex) {
                 LogFileFilter.getWriter().println("[StoreDAO] getStoreById() 자원 정리 오류");
                 ex.printStackTrace(LogFileFilter.getWriter());
-
             }
         }
-
         return store;
     }
 

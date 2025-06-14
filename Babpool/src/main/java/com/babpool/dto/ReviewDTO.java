@@ -1,6 +1,8 @@
 package com.babpool.dto;
 
 import java.sql.Timestamp;
+import java.util.List;
+import java.util.ArrayList;
 
 public class ReviewDTO {
 
@@ -14,6 +16,8 @@ public class ReviewDTO {
     // ✅ 수연 확장: 작성자 정보
     private String nickname;
     private String profileImagePath;
+    // ✅ 수연 확장: 리뷰 이미지 정보
+    private List<ReviewImageDTO> images = new ArrayList<>();
 
     public int getReviewId() { return reviewId; }
     public void setReviewId(int reviewId) { this.reviewId = reviewId; }
@@ -38,4 +42,8 @@ public class ReviewDTO {
 
     public String getProfileImagePath() { return profileImagePath; }
     public void setProfileImagePath(String profileImagePath) { this.profileImagePath = profileImagePath; }
+    
+    public List<ReviewImageDTO> getImages() { return images; }
+    public void setImages(List<ReviewImageDTO> images) { this.images = images; }
+
 }

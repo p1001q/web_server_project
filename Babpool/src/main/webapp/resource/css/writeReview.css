@@ -1,6 +1,7 @@
 /* 🔧 폼 너비 조절 */
 .review-container {
     width: 900px;
+    height: 600px;
     background: #fff;
     margin: 30px auto;
     padding: 30px 50px;
@@ -9,11 +10,25 @@
     position: relative;
 }
 
+.stars-line {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+
 .rating-value {
     font-weight: bold;
     font-size: 1.2rem;
     width: 50px;
     z-index: 2;
+    white-space: nowrap;
+}
+
+
+.score-text {
+    font-weight: bold;
+    font-size: 1.2rem;
 }
 
 /* 리뷰 입력창 */
@@ -71,11 +86,14 @@ textarea {
 
 /* 버튼 영역 */
 .button-row {
+    position: absolute;   /* ✅ 고정 배치 */
+    top: 30px;         /* ✅ 하단 여백 */
+    right: 50px;          /* ✅ 오른쪽 여백 */
     display: flex;
     justify-content: flex-end;
     gap: 15px;
-    margin-top: 30px;
 }
+
 
 /* 버튼 내부 텍스트 span 정렬 */
 button span {
@@ -107,9 +125,14 @@ button span {
     background-color: #f4cccc;
     color: #b00;
 }
-
+.cancel-btn:hover {
+    background-color: #e0a1a1;  /* 기존보다 살짝 어두운 핑크 */
+}
 /* 작성 버튼 색 */
 .submit-btn {
     background-color: #b0d4ff;
     color: #004085;
+}
+.submit-btn:hover {
+    background-color: #91bff6;  /* 기존보다 살짝 어두운 블루 */
 }

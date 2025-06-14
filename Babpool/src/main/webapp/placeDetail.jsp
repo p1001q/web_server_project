@@ -74,9 +74,9 @@
 		<div class="like-container">
 		  <div class="like-box ${isBookmarked ? 'active' : ''}">
 		    <c:choose>
-		      <c:when test="${isBookmarked}">❤️</c:when>
-		      <c:otherwise>🤍</c:otherwise>
-		    </c:choose>
+			  <c:when test="${isBookmarked == true}"><%= "❤️" %></c:when>
+			  <c:otherwise><%= "🤍" %></c:otherwise>
+			</c:choose>
 		  </div>
 		  <span class="like-count">${likeCount}</span>
 		</div>
@@ -157,6 +157,7 @@
 
     <div class="review-list">
       <c:forEach var="review" items="${reviews}">
+      
         <div class="review-item review-card">
           <div class="review-user">
             <img src="${pageContext.request.contextPath}${review.profileImagePath}" style="width:40px;height:40px;border-radius:50%;"> ${review.nickname}
@@ -164,7 +165,16 @@
           <div class="review-date">${review.createdAt}</div>
           <div class="review-stars">${review.rating}점</div>
           <p class="review-text">${review.content}</p>
+          
+       	  <c:if test="${not empty review.images}">
+        	<div class="review-images">
+				<c:forEach var="img" items="${review.images}">
+			      <img src="${pageContext.request.contextPath}/${img.imagePath}" />
+			   	</c:forEach>
+			</div>
+		  </c:if>         
         </div>
+        
       </c:forEach>
     </div>
   </section>

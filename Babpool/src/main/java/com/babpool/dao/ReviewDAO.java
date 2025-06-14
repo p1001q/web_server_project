@@ -1,6 +1,7 @@
 package com.babpool.dao;
 
 import com.babpool.dto.ReviewDTO;
+import com.babpool.dto.ReviewImageDTO;
 import com.babpool.filter.LogFileFilter;
 
 import java.io.PrintWriter;
@@ -129,7 +130,7 @@ public class ReviewDAO {
 //        return list;
 //    }
 
- // ✅ 특정 음식점의 전체 리뷰 조회 (정렬 옵션 포함) -- 수연 수정 안정화 버전 NULLPOINTEREXC 해결
+ // ✅ 특정 음식점의 전체 리뷰 조회 (정렬 옵션 포함, 이미지 연동 포함)
     public List<ReviewDTO> getReviewsByStoreSorted(int storeId, String sortType) {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -153,11 +154,19 @@ public class ReviewDAO {
             pstmt.setInt(1, storeId);
             rs = pstmt.executeQuery();
 
+            // ✅ ReviewImageDAO를 생성 (반복문 밖에서 1번만 생성)
+            ReviewImageDAO imageDAO = new ReviewImageDAO(conn);
+
             while (rs.next()) {
-                list.add(mapReviewDTO(rs));
+                ReviewDTO review = mapReviewDTO(rs);
+
+                // ✅ 해당 리뷰 ID로 이미지 목록 조회하여 세팅
+                List<ReviewImageDTO> images = imageDAO.getImagesByReviewId(review.getReviewId());
+                review.setImages(images);
+
+                list.add(review);
             }
         } catch (SQLException ex) {
-            // ✅ NPE 방어 코드
             PrintWriter writer = LogFileFilter.getWriter();
             if (writer != null) {
                 writer.println("[ReviewDAO] getReviewsByStoreSorted() READ-Error");
@@ -181,7 +190,6 @@ public class ReviewDAO {
         }
         return list;
     }
-
     
     
     // ✅ 특정 사용자의 리뷰 조회 (마이페이지 등에서 활용 가능) -- 수연 추가
@@ -306,6 +314,9 @@ public class ReviewDAO {
         review.setCreatedAt(rs.getTimestamp("created_at"));
         review.setNickname(rs.getString("nickname"));
         review.setProfileImagePath(rs.getString("profile_image_path"));
+        
+        review.setImages(new ArrayList<>()); //수연- 리뷰 이미지 첨부
+
         return review;
     }
     
