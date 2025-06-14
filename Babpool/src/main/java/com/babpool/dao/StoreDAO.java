@@ -3,6 +3,7 @@ package com.babpool.dao;
 import com.babpool.dto.StoreDTO;
 import com.babpool.filter.LogFileFilter;
 
+import java.io.PrintWriter;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -211,6 +212,54 @@ public class StoreDAO {
         }
         return list;
     }
+    
+    // 동국 - mypage -> 내가 쓴 리뷰 가게 이름 뽑기 storeId를 통해 가게 이름을 가져오는 메서드
+    public String getName(int storeId) {
+        String storeName = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+
+        try {
+            String sql = "SELECT name FROM store WHERE store_id = ?";
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setInt(1, storeId);
+            rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                storeName = rs.getString("name");
+            }
+        } catch (SQLException ex) {
+            // LogFileFilter.getWriter()가 null인 경우를 처리
+            PrintWriter writer = LogFileFilter.getWriter();
+            if (writer != null) {
+                writer.println("[StoreDAO] getName() READ-Error");
+                ex.printStackTrace(writer);
+            } else {
+                // 로그 파일을 사용할 수 없는 경우, 시스템 로그나 콘솔에 출력
+                System.err.println("[StoreDAO] getName() READ-Error");
+                ex.printStackTrace();
+            }
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (pstmt != null) pstmt.close();
+            } catch (SQLException ex) {
+                // LogFileFilter.getWriter()가 null인 경우를 처리
+                PrintWriter writer = LogFileFilter.getWriter();
+                if (writer != null) {
+                    writer.println("[StoreDAO] getName() 자원 정리 오류");
+                    ex.printStackTrace(writer);
+                } else {
+                    // 로그 파일을 사용할 수 없는 경우, 시스템 로그나 콘솔에 출력
+                    System.err.println("[StoreDAO] getName() 자원 정리 오류");
+                    ex.printStackTrace();
+                }
+            }
+        }
+
+        return storeName;
+    }
+
     
    
 }

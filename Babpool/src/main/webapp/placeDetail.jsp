@@ -66,7 +66,7 @@
       </div>
 
       <div class="left-bottom-btn">
-        <a class="direction-btn circle" href="https://map.kakao.com/" target="_blank">도보<br>길찾기</a>
+        <a class="direction-btn circle" href="${marker.url}" target="_blank">도보<br>길찾기</a>
       </div>
     </div>
 

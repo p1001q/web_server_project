@@ -69,47 +69,125 @@ try {
 
 <main class="mypage-container">
     <section class="profile-section">
-        <form action="UploadProfileServlet" method="post" enctype="multipart/form-data">
-            <label for="profileImage"> <!-- 수연 경로 오류 수정 -->
-            <img id="profilePreview" 
-			     src="<%= request.getContextPath() + (user != null && user.getProfileImagePath() != null 
-			         ? user.getProfileImagePath() 
-			         : "/resource/images/profile/default_profile.png") %>" 
-			     class="profile-img" alt="프로필 이미지">
-            </label>
-            <input type="file" id="profileImage" name="profileImage" accept="image/*" onchange="previewImage(event)">
-        </form>
+        <div class="profile-image-div">
+	        <form action="<%=request.getContextPath()%>/UploadProfileServlet" method="post" enctype="multipart/form-data">
+			    <label for="profileImage">
+			        <img id="profilePreview" 
+			             src="<%= request.getContextPath() + (loginUser != null && loginUser.getProfileImagePath() != null 
+			                 ? loginUser.getProfileImagePath() 
+			                 : "/resource/images/profile/default_profile.png") %>" 
+			             class="profile-img" alt="프로필 이미지">
+			    </label>
+			    <input type="file" id="profileImage" name="profileImage" accept="image/*" onchange="previewImage(event)">
+			    <button type="submit">프로필 이미지 변경</button>
+			</form>
+        </div>
         <div class="user-info">
             <p class="nickname"><%= loginUser.getNickname() %></p>
             <p class="email"><%= loginUser.getEmail() %></p>
         </div>
-        <div class="profile-buttons">
-            <button type="button" onclick="location.href='changePasswd.jsp'">비밀번호 변경</button>
-            <button type="button" onclick="location.href='<%= request.getContextPath() %>/LogoutServlet'">로그아웃</button>
-            <button type="button" onclick="location.href='DeleteUserServlet'">탈퇴</button>
-        </div>
-    </section>
+        
+        <div class="profile-buttons">    
+		    <button type="button" onclick="location.href='<%= request.getContextPath() %>/LogoutServlet'">로그아웃</button>
+		    <button type="button" onclick="location.href='changePasswd.jsp'">비밀번호 변경</button>
+		
+		    <!-- form은 이렇게 바꿔주자 -->
+		    <form action="<%=request.getContextPath()%>/DeleteUserServlet" method="post" style="width: 100%;">
+		        <button type="submit" style="width: 100%;">탈퇴하기</button>
+		    </form>
+		</div>
 
-    <section class="favorite-section">
-        <h3>찜한 가게</h3>
-        <div class="favorite-list">
-            <% for (StoreDTO store : stores) { %>
-                <div class="favorite-item">
-                    <p><%= store.getName() %></p>
-                    <p>⭐⭐⭐⭐☆ (<%= store.getRatingAvg() %>)</p>
-                </div>
-            <% } %>
-        </div>
     </section>
+	
+	<section class="favorite-section">
+    <h3>찜한 가게</h3>
+    <div class="favorite-list">
+        <% for (StoreDTO store : stores) { %>
+            <div class="favorite-item">
+                <a href="<%= request.getContextPath() %>/placeDetail?storeId=<%= store.getStoreId() %>">
+                    <p><%= store.getName() %></p>
+                    
+                    <!-- 별점 출력 부분 -->
+                    <div class="rating-stars">
+                        <%
+                            float ratingAvg = store.getRatingAvg();
+                            String stars = "";
+                            
+                            if (ratingAvg <= 1.5) {
+                                stars = "⭐☆ ☆ ☆ ☆";
+                            } else if (ratingAvg <= 2.5) {
+                                stars = "⭐⭐☆ ☆ ☆";
+                            } else if (ratingAvg <= 3.5) {
+                                stars = "⭐⭐⭐☆ ☆";
+                            } else if (ratingAvg <= 4.5) {
+                                stars = "⭐⭐⭐⭐☆";
+                            } else {
+                                stars = "⭐⭐⭐⭐⭐";
+                            }
+                        %>
+                        <%= stars %>
+                    </div>
+                    
+                    <!-- 평점 수치 출력 -->
+                    <div class="rating-score">
+                        <%= String.format("%.1f", ratingAvg) %>
+                    </div>
+                </a>
+            </div>
+        <% } %>
+    </div>
+</section>
+
+	
+    
 
     <section class="review-section">
         <h3>내가 쓴 리뷰</h3>
-        <% for (ReviewDTO review : reviews) { %>
-            <div class="review-item">
-                <p><%= review.getStoreId() %> - <span>★★★★★</span> <%= review.getContent() %></p>
-                <a href="#">삭제</a>
-            </div>
-        <% } %>
+        <%
+        storeDAO = null;
+        storeDAO = new StoreDAO(DBUtil.getConnection());  // StoreDAO 객체 생성
+        for (ReviewDTO review : reviews) { 
+            // storeId를 통해 storeName을 가져옵니다.
+            String storeName = storeDAO.getName(review.getStoreId());  
+            // storeName이 null인 경우 기본 값을 설정
+            if (storeName == null) {
+                storeName = "알 수 없음"; // 기본값 설정
+            }
+    %>
+        <div class="review-item">
+            <p> - <!-- 별점 출력 부분 -->
+            <a href="<%= request.getContextPath() %>/placeDetail?storeId=<%= review.getStoreId() %>"><%= storeName %></a>
+		<span class="rating-stars">
+		    <%
+		        double rating = review.getRating();  // review.getRating()을 사용
+		        String stars = "";
+		
+		        // 별점 조건에 따른 출력
+		        if (rating <= 1.5) {
+		            stars = "⭐☆ ☆ ☆ ☆";
+		        } else if (rating <= 2.5) {
+		            stars = "⭐⭐☆ ☆ ☆";
+		        } else if (rating <= 3.5) {
+		            stars = "⭐⭐⭐☆ ☆";
+		        } else if (rating <= 4.5) {
+		            stars = "⭐⭐⭐⭐☆";
+		        } else {
+		            stars = "⭐⭐⭐⭐⭐";
+		        }
+		    %>
+		    <%= stars %>
+		
+		    <!-- 평점 출력 (소수점 1자리까지) -->
+		    <%= String.format("%.1f", rating) %>
+		</span> <%= review.getContent() %></p>
+            <!-- 삭제 버튼: 해당 리뷰 ID를 ReviewDeleteServlet으로 전송 -->
+            <form action="<%=request.getContextPath()%>/ReviewDeleteServlet" method="post">
+                <input type="hidden" name="reviewId" value="<%= review.getReviewId() %>">
+                <button type="submit">삭제</button>
+            </form>
+        </div>
+        
+    <% } %>
     </section>
 </main>
 
@@ -122,6 +200,5 @@ function previewImage(event) {
     reader.readAsDataURL(event.target.files[0]);
 }
 </script>
-
 </body>
-</html>
+</html> 

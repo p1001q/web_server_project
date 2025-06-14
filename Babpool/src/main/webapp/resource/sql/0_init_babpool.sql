@@ -1,12 +1,11 @@
--- 1단계: 테이블 생성
-
+-- 0단계 테이블 삭제
 -- 💡 우선 외래키 체크 비활성화 (임시로)
 SET FOREIGN_KEY_CHECKS = 0;
+
 -- 삭제 순서: 하위 테이블 → 상위 테이블
 DROP TABLE IF EXISTS marker_tag_map;
+DROP TABLE IF EXISTS marker_category_map;
 DROP TABLE IF EXISTS marker;
-DROP TABLE IF EXISTS user_language;
-DROP TABLE IF EXISTS recommendation_log;
 DROP TABLE IF EXISTS store_tag_map;
 DROP TABLE IF EXISTS store_category_map;
 DROP TABLE IF EXISTS bookmark;
@@ -17,9 +16,11 @@ DROP TABLE IF EXISTS tag;
 DROP TABLE IF EXISTS category;
 DROP TABLE IF EXISTS store;
 DROP TABLE IF EXISTS user;
+
 -- 외래키 체크 다시 활성화
 SET FOREIGN_KEY_CHECKS = 1;
 
+-- 1단계: 테이블 생성
 -- 사용자 테이블: 회원 로그인/정보 저장
 CREATE TABLE user (
   user_id INT PRIMARY KEY AUTO_INCREMENT,
@@ -111,24 +112,6 @@ CREATE TABLE store_tag_map (
   FOREIGN KEY (tag_id) REFERENCES tag(tag_id) ON DELETE CASCADE
 );
 
--- 추천 로그 테이블: 사용자에게 추천된 음식점 기록
-CREATE TABLE recommendation_log (
-  log_id INT PRIMARY KEY AUTO_INCREMENT,
-  user_id INT,
-  category_id INT,
-  recommended_store_id INT,
-  FOREIGN KEY (user_id) REFERENCES user(user_id) ON DELETE CASCADE,
-  FOREIGN KEY (category_id) REFERENCES category(category_id),
-  FOREIGN KEY (recommended_store_id) REFERENCES store(store_id)
-);
-
--- 사용자 언어 설정 테이블: 다국어 표시용
-CREATE TABLE user_language (
-  user_id INT PRIMARY KEY,
-  language_code VARCHAR(10) DEFAULT 'kr',
-  FOREIGN KEY (user_id) REFERENCES user(user_id) ON DELETE CASCADE
-);
-
 -- 마커 테이블: 음식점 위치 및 지도 표시용
 CREATE TABLE marker (
     marker_id INT NOT NULL AUTO_INCREMENT,
@@ -155,6 +138,7 @@ CREATE TABLE marker_tag_map (
   FOREIGN KEY (tag_id) REFERENCES tag(tag_id) ON DELETE CASCADE
 );
 
+-- 마커-카테고리 매핑 테이블
 CREATE TABLE marker_category_map (
   marker_id INT,
   category_id INT,

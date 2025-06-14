@@ -1,47 +1,55 @@
 package com.babpool.controller;
 
+import com.babpool.dao.UserDAO;
+import com.babpool.dto.UserDTO;
+import com.babpool.utils.DBUtil;
+import jakarta.servlet.*;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.*;
+
 import java.io.IOException;
 import java.sql.Connection;
 
-import com.babpool.dao.UserDAO;
-import com.babpool.utils.DBUtil;
-
-import jakarta.servlet.ServletException;
-import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
-
-// mypage.jsp - 동국 -> 탈퇴하기 버튼 사용 서블릿 클래스
+// 동국 - mypage - 탈퇴버튼
 @WebServlet("/DeleteUserServlet")
 public class DeleteUserServlet extends HttpServlet {
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        // 로그인된 사용자 이메일 가져오기 (세션에서)
+
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        // 세션에서 로그인된 사용자 이메일 가져오기
         HttpSession session = request.getSession();
-        String email = (String) session.getAttribute("email");
+        UserDTO loginUser = (UserDTO) session.getAttribute("loginUser");
 
-        // DB 연결 및 DAO 객체 생성
+        // 로그인된 사용자 정보가 없으면 로그인 페이지로 리다이렉트
+        if (loginUser == null) {
+            response.sendRedirect("login.jsp");
+            return;
+        }
+
+        // DB에서 사용자 삭제 작업
         Connection conn = null;
+        UserDAO userDAO = null;
+
         try {
-            conn = DBUtil.getConnection();
-            UserDAO userDAO = new UserDAO(conn);
+            conn = DBUtil.getConnection();  // DB 연결
+            userDAO = new UserDAO(conn);
 
-            // 사용자가 삭제할 때, UserDAO에서 해당 사용자 삭제 메서드 호출
-            boolean result = userDAO.deleteUserByEmail(email);
+            // 이메일로 사용자 삭제
+            boolean deleteSuccess = userDAO.deleteUserByEmail(loginUser.getEmail());
 
-            if (result) {
-                // 삭제 성공 시, 로그아웃 처리 후 메인 페이지로 리다이렉트
+            // 삭제 성공하면 세션에서 로그아웃 처리 후 로그인 페이지로 리다이렉트
+            if (deleteSuccess) {
                 session.invalidate();  // 세션 무효화
-                response.sendRedirect(request.getContextPath() + "/mainPage.jsp");
+                response.sendRedirect("mainPage.jsp");  // mainPage.jsp로 리다이렉트
             } else {
-                // 삭제 실패 시 에러 메시지 표시
-                response.getWriter().println("회원 탈퇴에 실패했습니다.");
+                request.setAttribute("errorMessage", "사용자 삭제에 실패했습니다.");
+                request.getRequestDispatcher("mypage.jsp").forward(request, response);
             }
         } catch (Exception e) {
             e.printStackTrace();
-            response.getWriter().println("서버 오류가 발생했습니다.");
+            request.setAttribute("errorMessage", "탈퇴 처리 중 오류가 발생했습니다.");
+            request.getRequestDispatcher("mypage.jsp").forward(request, response);
         } finally {
+            // DB 연결 자원 닫기
             try {
                 if (conn != null) conn.close();
             } catch (Exception e) {

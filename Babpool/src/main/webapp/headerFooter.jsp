@@ -39,6 +39,12 @@
           <span>마이페이지</span>
         </a>
       </c:when>
+      <%-- <c:when test="${not empty sessionScope.loginUser}">
+		  <a href="<%= request.getContextPath() %>/MyPageServlet" class="header-button">
+		      <span>👤</span>
+		      <span>마이페이지</span>
+		  </a>
+	  </c:when> 동국 -mypage-servlet --%>
       <c:otherwise>
         <a href="<%= request.getContextPath() %>/login.jsp" class="header-button">
           <span>🔑</span>

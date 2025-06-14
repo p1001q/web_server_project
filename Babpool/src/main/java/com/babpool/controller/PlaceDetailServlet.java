@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.util.*;
 
+//수연 가게 페이지 서블릿
 @WebServlet("/placeDetail")
 public class PlaceDetailServlet extends HttpServlet {
 
@@ -72,6 +73,11 @@ public class PlaceDetailServlet extends HttpServlet {
             List<CategoryDTO> categories = categoryDAO.getCategoriesByStoreId(storeId);
             request.setAttribute("categories", categories);
 
+            // 동국 마커 DTO -> url 호출을 위한 선언 
+            MarkerDAO markerDAO = new MarkerDAO(conn);
+            MarkerDTO marker = markerDAO.getMarkerById(storeId); // markerId == storeId
+            request.setAttribute("marker", marker);
+            
             // ⭐ JSP 이동
             request.getRequestDispatcher("/placeDetail.jsp").forward(request, response);
 

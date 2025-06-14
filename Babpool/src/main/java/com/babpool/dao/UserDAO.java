@@ -203,4 +203,62 @@ public class UserDAO {
             }
         }
     }
+    // 동국 - mypage - 프로필사진 갱신 후 db 내 PATH 갱신
+//    public boolean updateUserProfileImage(UserDTO user) {
+//        PreparedStatement pstmt = null;
+//        try {
+//            String sql = "UPDATE user SET profile_image_path = ? WHERE user_id = ?";
+//            pstmt = conn.prepareStatement(sql);
+//            pstmt.setString(1, user.getProfileImagePath()); // 새 이미지 경로
+//            pstmt.setInt(2, user.getUserId()); // 사용자 ID
+//            return pstmt.executeUpdate() > 0;
+//        } catch (SQLException ex) {
+//            handleSQLException("[UserDAO] updateUserProfileImage() UPDATE-Error", ex);
+//            return false;
+//        } finally {
+//            try { if (pstmt != null) pstmt.close(); } catch (SQLException ex) { ex.printStackTrace(); }
+//        }
+//    }
+    
+    public boolean updateUserProfileImage(UserDTO user) {
+        PreparedStatement pstmt = null;
+        try {
+            String sql = "UPDATE user SET profile_image_path = ? WHERE user_id = ?";
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, user.getProfileImagePath());  // 새로운 이미지 경로
+            pstmt.setInt(2, user.getUserId());  // 사용자의 ID
+            int rowsAffected = pstmt.executeUpdate();
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        } finally {
+            try {
+                if (pstmt != null) pstmt.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    
+    // 동국 - mypage - 비밀번호 변경 서블릿에서 사용 
+    // ✅ 이메일로 사용자 찾고 비밀번호 업데이트
+    public boolean updatePasswordByEmail(String email, String newPassword) {
+        PreparedStatement pstmt = null;
+        try {
+            String sql = "UPDATE user SET password = ? WHERE email = ?";
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, newPassword); // 새 비밀번호
+            pstmt.setString(2, email); // 이메일로 사용자 찾기
+
+            // 비밀번호 업데이트가 성공하면 true, 실패하면 false
+            return pstmt.executeUpdate() > 0;
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            return false;
+        } finally {
+            try { if (pstmt != null) pstmt.close(); } catch (SQLException ex) { ex.printStackTrace(); }
+        }
+    }
 }

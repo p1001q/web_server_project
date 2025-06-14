@@ -1,4 +1,4 @@
-insert into marker_category_map (marker_id, category_id) values
+insert into store_category_map (store_id, category_id) values
 (3, 1),(4, 1),(9, 1),(10, 1),(17, 1),(18, 1),(23, 1),(25, 1),(26, 1),(28, 1),
 (5, 2),(16, 2),(29, 2),
 (2, 3),(7, 3),(11, 3),(22, 3),
@@ -10,7 +10,7 @@ insert into marker_category_map (marker_id, category_id) values
 (32, 9),(33, 9),(34, 9),(35, 9),(36, 9),(37, 9);
 
 
-insert into marker_tag_map (marker_id, tag_id) values
+insert into store_tag_map (store_id, tag_id) values
 (2,1),
 (3, 2),
 (4, 1),(4, 2),
@@ -46,6 +46,3 @@ insert into marker_tag_map (marker_id, tag_id) values
 (34, 1),
 (35, 2),
 (36, 4),(37, 1),(38, 1);
-
-select * from marker_category_map;
-select * from marker_tag_map;

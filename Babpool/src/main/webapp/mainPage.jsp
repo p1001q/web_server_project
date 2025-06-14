@@ -2,8 +2,8 @@
 <%@ page import="java.util.*" %>
 <%@ page import="java.sql.Connection" %>
 <%@ page import="com.babpool.utils.DBUtil, com.babpool.utils.ApiKeyUtil" %>
-<%@ page import="com.babpool.dao.CategoryDAO, com.babpool.dao.TagDAO, com.babpool.dao.MarkerDAO, com.babpool.dao.MarkerCategoryDAO, com.babpool.dao.MarkerTagDAO" %>
-<%@ page import="com.babpool.dto.CategoryDTO, com.babpool.dto.TagDTO, com.babpool.dto.MarkerDTO" %>
+<%@ page import="com.babpool.dao.CategoryDAO, com.babpool.dao.TagDAO, com.babpool.dao.MarkerDAO, com.babpool.dao.MarkerCategoryDAO, com.babpool.dao.MarkerTagDAO, com.babpool.dao.StoreDAO" %>  <!-- StoreDAO 추가 -->
+<%@ page import="com.babpool.dto.CategoryDTO, com.babpool.dto.TagDTO, com.babpool.dto.MarkerDTO, com.babpool.dto.StoreDTO" %>  <!-- StoreDTO 추가 -->
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
@@ -96,7 +96,7 @@
       </div>
     </aside>
 
-<!-- ✅ 디버깅용: storeId 확인 -->
+<!-- 수연 ✅ 디버깅용: storeId 확인 -->
 <%/*<div>
   <h3>storeId 디버깅:</h3>
   <c:forEach var="m" items="${markerList}">
@@ -161,40 +161,63 @@
       </script>
     </section>
 
-    <!-- ✅ Top3 영역 (공통 유지) -->
-    <aside class="top-list">
-      <h3>서경인들의 맛집 TOP 3</h3>
-      <div class="top-card">
-        <img src="<%= request.getContextPath() %>/resource/images/sample1.jpg" alt="식당1">
-        <div class="top-info">
-          <div class="top-name">A식당</div>
-          <div class="top-stars">★★★☆☆</div>
-          <div class="top-like"><span class="heart" onclick="toggleHeart(this)">🤍</span><span>14</span></div>
-          <div class="top-tag">#중식</div>
-        </div>
-      </div>
-      <div class="top-card">
-        <img src="<%= request.getContextPath() %>/resource/images/sample2.jpg" alt="식당2">
-        <div class="top-info">
-          <div class="top-name">B식당</div>
-          <div class="top-stars">★★★★☆</div>
-          <div class="top-like"><span class="heart" onclick="toggleHeart(this)">🤍</span><span>21</span></div>
-          <div class="top-tag">#한식</div>
-        </div>
-      </div>
-      <div class="top-card">
-        <img src="<%= request.getContextPath() %>/resource/images/sample3.jpg" alt="식당3">
-        <div class="top-info">
-          <div class="top-name">C식당</div>
-          <div class="top-stars">★★★★★</div>
-          <div class="top-like"><span class="heart" onclick="toggleHeart(this)">🤍</span><span>33</span></div>
-          <div class="top-tag">#일식</div>
-        </div>
-      </div>
-    </aside>
-  </div>
+    <!-- 수연 ✅ Top3 영역 (공통 유지) -->
+    <%
+    StoreDAO storeDAO = new StoreDAO(conn);
+    List<Map<String, Object>> topStores = storeDAO.getTop3StoresWithCategory();
+    request.setAttribute("topStores", topStores);
+%>
 
-  <!-- ✅ 마스코트 영역 (공통 유지) -->
+<aside class="top-list">
+  <h3>서경인들의 맛집 TOP 3</h3>
+  <c:forEach var="store" items="${topStores}">
+    <div class="top-card">
+      <!-- 가게 상세 페이지로 이동할 수 있는 링크 추가 -->
+      <a href="<%= request.getContextPath() %>/placeDetail?storeId=${store.storeId}" class="top-link">
+        <div class="top-info">
+          <!-- 수정된 부분: 아이콘을 왼쪽에 두고 텍스트는 오른쪽으로 배치 -->
+          <div class="top-left">
+            <img src="<%= request.getContextPath() %>/resource/images/${store.categoryName}.png" alt="${store.categoryName}">
+          </div>
+          <div class="top-right">
+            <div class="top-name">${store.name}</div>
+            <!-- 별점 출력 -->
+            <div class="stars">
+              <c:choose>
+                <c:when test="${store.ratingAvg <= 1.5}">⭐ ☆ ☆ ☆ ☆</c:when>
+                <c:when test="${store.ratingAvg <= 2.5}">⭐⭐ ☆ ☆ ☆</c:when>
+                <c:when test="${store.ratingAvg <= 3.5}">⭐⭐⭐ ☆ ☆</c:when>
+                <c:when test="${store.ratingAvg <= 4.5}">⭐⭐⭐⭐ ☆</c:when>
+                <c:otherwise>⭐⭐⭐⭐⭐</c:otherwise>
+              </c:choose>
+            </div>
+
+            <!-- 찜 개수 출력 -->
+            <div class="top-like">
+              <c:choose>
+                <c:when test="${isBookmarked}">
+                  <span class="heart">❤️</span> <!-- 찜 표시 되어 있으면 빨간 하트 -->
+                </c:when>
+                <c:otherwise>
+                  <span class="heart">🤍</span><!-- 찜 표시 안 되어 있으면 하얀 하트 -->
+                </c:otherwise>
+              </c:choose>
+              <span>${store.likeCount}</span>
+            </div>
+
+            <!-- 카테고리 태그 출력 -->
+            <div class="top-tag">#${store.categoryName}</div>
+          </div>
+        </div>
+      </a>
+    </div>
+  </c:forEach>
+</aside>
+
+
+
+
+  <!--수연 ✅ 마스코트 영역 (공통 유지) -->
   <div class="mascot-area">
     <img src="<%= request.getContextPath() %>/resource/images/mascot_close.png" alt="마스코트" onclick="openHelp()">
   </div>
@@ -231,3 +254,5 @@
 
 </body>
 </html>
+
+
