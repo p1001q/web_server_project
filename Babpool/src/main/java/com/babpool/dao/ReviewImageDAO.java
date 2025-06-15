@@ -126,4 +126,22 @@ public class ReviewImageDAO {
             }
         }
     }
+    
+    public List<String> getReviewImagesByStoreId(int storeId) {
+        List<String> imagePaths = new ArrayList<>();
+        String sql = "SELECT ri.image_path FROM review_image ri JOIN review r ON ri.review_id = r.review_id WHERE r.store_id = ? ORDER BY ri.image_id DESC";
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, storeId);
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                imagePaths.add(rs.getString("image_path"));
+            }
+        } catch (SQLException ex) {
+            LogFileFilter.getWriter().println("[ReviewImageDAO] getReviewImagesByStoreId() READ-Error");
+            ex.printStackTrace(LogFileFilter.getWriter());
+        }
+        return imagePaths;
+    }
+
+    
 }

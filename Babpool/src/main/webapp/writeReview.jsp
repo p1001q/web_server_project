@@ -15,9 +15,14 @@
     int userId = loginUser.getUserId();
     String userNickname = loginUser.getNickname();
 
-    int storeId = Integer.parseInt(request.getParameter("storeId"));
-    String storeName = "";
+    String storeIdStr = request.getParameter("storeId");
+    if (storeIdStr == null || storeIdStr.isEmpty()) {
+        response.sendRedirect("errorPage.jsp?errorType=missingStoreId");
+        return;
+    }
+    int storeId = Integer.parseInt(storeIdStr);
 
+    String storeName = "";
     Connection conn = null;
     try {
         conn = DBUtil.getConnection();
@@ -56,25 +61,23 @@
 
         <h3><%= storeName %></h3>
 
-	    <div class="star-rating">
-		    <div class="stars-line">
-		        <span class="star" data-value="1">☆</span>
-		        <span class="star" data-value="2">☆</span>
-		        <span class="star" data-value="3">☆</span>
-		        <span class="star" data-value="4">☆</span>
-		        <span class="star" data-value="5">☆</span>
-		        <span class="rating-value" id="ratingValue">5.0</span>
-		    </div>
-		    <input type="hidden" name="rating" id="ratingInput" value="5.0">
-		</div>
-	
+        <div class="star-rating">
+            <div class="stars-line">
+                <span class="star" data-value="1">☆</span>
+                <span class="star" data-value="2">☆</span>
+                <span class="star" data-value="3">☆</span>
+                <span class="star" data-value="4">☆</span>
+                <span class="star" data-value="5">☆</span>
+                <span class="rating-value" id="ratingValue">5.0</span>
+            </div>
+            <input type="hidden" name="rating" id="ratingInput" value="5.0">
+        </div>
 
-        <textarea name="reviewText" maxlength="1000" placeholder="건강한 리뷰를 작성해주세요!" oninput="updateCharCount()"></textarea>
-        <div class="char-count" id="charCount">0 / 1000</div>
+        <textarea name="reviewText" maxlength="1000" placeholder="건강한 리뷰를 작성해주세요!"></textarea>
 
         <div class="image-upload">
             <label>리뷰 사진 (한 장만 골라 첨부해주세요.)</label>
-          <input type="file" id="imageInput" name="image" accept="image/*">
+            <input type="file" id="imageInput" name="image" accept="image/*">
         </div>
 
         <div class="preview-area" id="previewArea"></div>
@@ -87,49 +90,76 @@
 </div>
 
 <script>
-// 글자수 카운팅
-function updateCharCount() {
-    const text = document.querySelector("textarea").value || "";
-    document.getElementById("charCount").textContent = `${text.length} / 1000`;
-}
+document.addEventListener("DOMContentLoaded", function() {
+    // 별점 처리
+    const stars = document.querySelectorAll(".star");
+    const ratingInput = document.getElementById("ratingInput");
+    const ratingValue = document.getElementById("ratingValue");
 
-//미리보기 (한 장 전용)
-document.getElementById("imageInput").addEventListener("change", function(e) {
-    const file = e.target.files[0];
-    const previewArea = document.getElementById("previewArea");
-    previewArea.innerHTML = "";
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const img = document.createElement("img");
-            img.src = e.target.result;
-            previewArea.appendChild(img);
-        }
-        reader.readAsDataURL(file);
+    function updateStars(score) {
+        stars.forEach(star => {
+            star.textContent = (parseInt(star.getAttribute("data-value")) <= score) ? "⭐" : "☆";
+        });
     }
-});
+    updateStars(parseFloat(ratingInput.value));
 
-// ⭐⭐ 별점 이벤트 (최종 안정화 포인트)
-const stars = document.querySelectorAll(".star");
-const ratingInput = document.getElementById("ratingInput");
-const ratingValue = document.getElementById("ratingValue");
-updateStars(parseFloat(ratingInput.value));
-
-stars.forEach(star => {
-    star.addEventListener("click", () => {
-        const score = parseInt(star.getAttribute("data-value"));
-        updateStars(score);
-        ratingInput.value = score.toFixed(1);
-        ratingValue.textContent = score.toFixed(1);
-    });
-});
-
-function updateStars(score) {
     stars.forEach(star => {
-        star.textContent = (parseInt(star.getAttribute("data-value")) <= score) ? "⭐" : "☆";
+        star.addEventListener("click", () => {
+            const score = parseInt(star.getAttribute("data-value"));
+            updateStars(score);
+            ratingInput.value = score.toFixed(1);
+            ratingValue.textContent = score.toFixed(1);
+        });
     });
-}
 
+    // 이미지 미리보기 + 삭제버튼
+    document.getElementById("imageInput").addEventListener("change", function(e) {
+        const file = e.target.files[0];
+        const previewArea = document.getElementById("previewArea");
+        previewArea.innerHTML = "";
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const imgContainer = document.createElement("div");
+                imgContainer.classList.add("preview-container");
+
+                const img = document.createElement("img");
+                img.src = e.target.result;
+                imgContainer.appendChild(img);
+
+                const deleteBtn = document.createElement("button");
+                deleteBtn.textContent = "X";
+                deleteBtn.classList.add("delete-btn");
+
+                deleteBtn.addEventListener("click", function() {
+                    document.getElementById("imageInput").value = "";
+                    previewArea.innerHTML = "";
+                });
+
+                imgContainer.appendChild(deleteBtn);
+                previewArea.appendChild(imgContainer);
+            }
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // 클라이언트 검증
+    document.getElementById("reviewForm").addEventListener("submit", function(e) {
+        const reviewText = document.querySelector("textarea").value.trim();
+        const rating = parseFloat(ratingInput.value);
+
+        if (reviewText === "") {
+            alert("리뷰 내용을 작성해주세요.");
+            e.preventDefault();
+            return;
+        }
+        if (isNaN(rating) || rating === 0) {
+            alert("별점을 선택해주세요.");
+            e.preventDefault();
+            return;
+        }
+    });
+});
 </script>
 
 </body>

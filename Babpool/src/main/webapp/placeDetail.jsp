@@ -17,15 +17,11 @@
 
   <!-- 📸 사진 섹션 -->
   <section class="photo-section">
-    <div class="photo-slider">
-      <div class="photo-slider">
-		  <img src="/Babpool/resource/images/cafe.png" alt="사진1">
-		  <img src="/Babpool/resource/images/asian.png" alt="사진2">
-		  <img src="/Babpool/resource/images/bunsik.png" alt="사진3">
-		  <img src="/Babpool/resource/images/japanese.png" alt="사진4">
-		  <img src="/Babpool/resource/images/western.png" alt="사진5">
-		</div>
-    </div>
+	<div class="photo-slider">
+	  <c:forEach var="imgPath" items="${reviewImages}">
+	    <img src="<%= request.getContextPath() %>/${imgPath}" alt="리뷰 이미지">
+	  </c:forEach>
+	</div>
   </section>
 
   <!-- 🏠 기본 정보 + 찜/카테고리 -->
@@ -71,15 +67,20 @@
     </div>
 
     <div class="right-box">
-		<div class="like-container">
-		  <div class="like-box ${isBookmarked ? 'active' : ''}">
-		    <c:choose>
-			  <c:when test="${isBookmarked == true}"><%= "❤️" %></c:when>
-			  <c:otherwise><%= "🤍" %></c:otherwise>
-			</c:choose>
-		  </div>
-		  <span class="like-count">${likeCount}</span>
-		</div>
+	 <div class="like-container">
+	  <form action="<%= request.getContextPath() %>/ToggleBookmarkServlet" method="post">
+	    <input type="hidden" name="storeId" value="${store.storeId}">
+	    <button type="submit" class="like-box ${isBookmarked ? 'active' : ''}">
+	    <c:choose>
+			<c:when test="${isBookmarked == true}">&#8203;❤️</c:when>
+			<c:otherwise>&#8203;🤍</c:otherwise>
+		</c:choose>
+
+	    </button>
+	  </form>
+	  <span class="like-count">${likeCount}</span>
+	 </div>
+
 
 	 <div class="category-box">
 	  <c:forEach var="category" items="${categories}">

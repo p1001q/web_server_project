@@ -29,15 +29,45 @@ public class SubmitReviewServlet extends HttpServlet {
             int maxSize = 50 * 1024 * 1024;  // 50MB
 
             // ✅ MultipartRequest 생성 (파일+폼 한번에 받음)
-            MultipartRequest multi = new MultipartRequest(
-                    request, uploadPath, maxSize, "UTF-8", new DefaultFileRenamePolicy());
+            MultipartRequest multi = null;
+            try {
+                multi = new MultipartRequest(
+                        request, uploadPath, maxSize, "UTF-8", new DefaultFileRenamePolicy());
+            } catch (IOException e) {
+                // 파일 용량 초과 등 업로드 실패 시
+                response.sendRedirect("errorPage.jsp?errorType=fileSizeExceeded");
+                return;
+            }
 
             // ✅ 폼 데이터 파싱
-            int userId = Integer.parseInt(multi.getParameter("userId"));
+            String userIdStr = multi.getParameter("userId");
             String userNickname = multi.getParameter("userNickname");
-            int storeId = Integer.parseInt(multi.getParameter("storeId"));
-            double rating = Double.parseDouble(multi.getParameter("rating"));
+            String storeIdStr = multi.getParameter("storeId");
+            String ratingStr = multi.getParameter("rating");
             String reviewText = multi.getParameter("reviewText");
+
+            // ✅ 파라미터 널검증
+            if (userIdStr == null || storeIdStr == null || ratingStr == null || userNickname == null) {
+                response.sendRedirect("errorPage.jsp?errorType=invalidUserInfo");
+                return;
+            }
+            if (reviewText == null || reviewText.trim().isEmpty()) {
+                response.sendRedirect("errorPage.jsp?errorType=missingReviewText");
+                return;
+            }
+
+            // ✅ 파라미터 파싱 (형식 검증)
+            int userId = 0;
+            int storeId = 0;
+            double rating = 0;
+            try {
+                userId = Integer.parseInt(userIdStr);
+                storeId = Integer.parseInt(storeIdStr);
+                rating = Double.parseDouble(ratingStr);
+            } catch (NumberFormatException ex) {
+                response.sendRedirect("errorPage.jsp?errorType=invalidParameterFormat");
+                return;
+            }
 
             conn = DBUtil.getConnection();
 
@@ -52,7 +82,8 @@ public class SubmitReviewServlet extends HttpServlet {
 
             boolean insertResult = reviewDAO.insertReview(review);
             if (!insertResult) {
-                throw new Exception("리뷰 저장 실패");
+                response.sendRedirect("errorPage.jsp?errorType=dbError");
+                return;
             }
 
             // ✅ 단일 이미지 파일 저장 (한장 전용)
@@ -74,7 +105,7 @@ public class SubmitReviewServlet extends HttpServlet {
 
         } catch (Exception e) {
             e.printStackTrace();
-            response.sendRedirect("error.jsp");
+            response.sendRedirect("errorPage.jsp?errorType=dbError");
         } finally {
             try { if (conn != null) conn.close(); } catch (Exception ex) {}
         }

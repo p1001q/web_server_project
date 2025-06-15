@@ -8,7 +8,7 @@
 <%
 //임시 테스트 - 동국 이메일로 세션 허용 -> 추후에 web.xml - role  설정하기
 com.babpool.dto.UserDTO admin = (com.babpool.dto.UserDTO) session.getAttribute("loginUser");
-if (!admin.getEmail().equals("tndus10@skuniv.ac.kr")) {
+if (!admin.getEmail().equals("tndus0@skuniv.ac.kr")) {
 %>
     <script>
         alert("관리자만 입장 가능한 페이지입니다.");

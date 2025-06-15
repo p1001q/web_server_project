@@ -78,6 +78,11 @@ public class PlaceDetailServlet extends HttpServlet {
             MarkerDAO markerDAO = new MarkerDAO(conn);
             MarkerDTO marker = markerDAO.getMarkerById(storeId);
             request.setAttribute("marker", marker);
+            
+            // 리뷰 이미지 갖고 오기
+            ReviewImageDAO reviewImageDAO = new ReviewImageDAO(conn);
+            List<String> reviewImages = reviewImageDAO.getReviewImagesByStoreId(storeId);
+            request.setAttribute("reviewImages", reviewImages);
 
             // JSP 이동
             request.getRequestDispatcher("/placeDetail.jsp").forward(request, response);
