@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+//6/15 11:16 병합본
 public class ReviewDAO {
 
     private Connection conn;
@@ -344,4 +344,28 @@ public class ReviewDAO {
         }
         return list;
     }
+    
+    // 관리자 페이지 - 동국 6/15
+    public boolean updateReviewContent(int reviewId, String content) {
+        PreparedStatement pstmt = null;
+        try {
+            String sql = "UPDATE review SET content = ? WHERE review_id = ?";
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, content);
+            pstmt.setInt(2, reviewId);
+            return pstmt.executeUpdate() > 0;
+        } catch (SQLException ex) {
+            LogFileFilter.getWriter().println("[ReviewDAO] updateReviewContent() UPDATE-Error");
+            ex.printStackTrace(LogFileFilter.getWriter());
+            return false;
+        } finally {
+            try {
+                if (pstmt != null) pstmt.close();
+            } catch (SQLException ex) {
+                LogFileFilter.getWriter().println("[ReviewDAO] updateReviewContent() 자원 정리 오류");
+                ex.printStackTrace(LogFileFilter.getWriter());
+            }
+        }
+    }
+    
 }

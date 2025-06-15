@@ -1,7 +1,6 @@
 package com.babpool.controller;
 
 import com.babpool.dao.UserDAO;
-import com.babpool.dto.UserDTO;
 import com.babpool.utils.DBUtil;
 
 import jakarta.servlet.*;
@@ -10,17 +9,17 @@ import jakarta.servlet.http.*;
 import java.io.IOException;
 import java.sql.Connection;
 
-@WebServlet("/UserSelectByIdServlet")
-public class UserSelectByIdServlet extends HttpServlet {
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+@WebServlet("/AdminUserDeleteServlet")
+public class AdminUserDeleteServlet extends HttpServlet {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         int userId = Integer.parseInt(request.getParameter("userId"));
 
         Connection conn = null;
         try {
             conn = DBUtil.getConnection();
             UserDAO userDAO = new UserDAO(conn);
-            UserDTO user = userDAO.getUserById(userId);
-            request.setAttribute("user", user);
+            boolean result = userDAO.deleteUser(userId);
+            request.setAttribute("deleteResult", result);
             request.getRequestDispatcher("manageUserPage.jsp").forward(request, response);
         } catch (Exception e) {
             e.printStackTrace();

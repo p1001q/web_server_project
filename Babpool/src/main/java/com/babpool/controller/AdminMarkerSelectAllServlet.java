@@ -10,8 +10,8 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.util.List;
 
-@WebServlet("/MarkerSelectAllServlet")
-public class MarkerSelectAllServlet extends HttpServlet {
+@WebServlet("/AdminMarkerSelectAllServlet")
+public class AdminMarkerSelectAllServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String toggle = request.getParameter("toggle");
         if (toggle == null) {

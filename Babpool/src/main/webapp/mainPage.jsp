@@ -2,23 +2,25 @@
 <%@ page import="java.util.*" %>
 <%@ page import="java.sql.Connection" %>
 <%@ page import="com.babpool.utils.DBUtil, com.babpool.utils.ApiKeyUtil" %>
-<%@ page import="com.babpool.dao.CategoryDAO, com.babpool.dao.TagDAO, com.babpool.dao.MarkerDAO, com.babpool.dao.MarkerCategoryDAO, com.babpool.dao.MarkerTagDAO, com.babpool.dao.StoreDAO" %>  <!-- StoreDAO 추가 -->
+<%@ page import="com.babpool.dao.CategoryDAO, com.babpool.dao.TagDAO, com.babpool.dao.MarkerDAO, com.babpool.dao.MarkerCategoryMapDAO, com.babpool.dao.MarkerTagMapDAO, com.babpool.dao.StoreDAO" %>  <!-- StoreDAO 추가 -->
 <%@ page import="com.babpool.dto.CategoryDTO, com.babpool.dto.TagDTO, com.babpool.dto.MarkerDTO, com.babpool.dto.StoreDTO" %>  <!-- StoreDTO 추가 -->
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <%
+    // 🔄 병합: 언어 설정 로직
     Locale locale = request.getLocale();
     String mapLang = locale.getLanguage();
     if (!mapLang.matches("ko|en|ja|zh")) mapLang = "ko";
 
     Connection conn = DBUtil.getConnection();
 
+    // 🔄 병합: DAO 네이밍 최신화 (Map 붙은 버전으로 통일)
     CategoryDAO categoryDAO = new CategoryDAO(conn);
     TagDAO tagDAO = new TagDAO(conn);
     MarkerDAO markerDAO = new MarkerDAO(conn);
-    MarkerCategoryDAO markerCategoryDAO = new MarkerCategoryDAO(conn);
-    MarkerTagDAO markerTagDAO = new MarkerTagDAO(conn);
+    MarkerCategoryMapDAO markerCategoryDAO = new MarkerCategoryMapDAO(conn);
+    MarkerTagMapDAO markerTagDAO = new MarkerTagMapDAO(conn);
 
     List<CategoryDTO> categoryList = categoryDAO.getAllCategories();
     List<TagDTO> tagList = tagDAO.getAllTags();
@@ -48,6 +50,11 @@
     request.setAttribute("categoryList", categoryList);
     request.setAttribute("tagList", tagList);
     request.setAttribute("markerList", markerList);
+
+    // 🔄 병합: Top3 DB 연동 정상 유지
+    StoreDAO storeDAO = new StoreDAO(conn);
+    List<Map<String, Object>> topStores = storeDAO.getTop3StoresWithCategory();
+    request.setAttribute("topStores", topStores);
 %>
 
 <!DOCTYPE html>
@@ -140,7 +147,6 @@
                 window.open('<%= request.getContextPath() %>/placeDetail?storeId=' + marker.storeId, '_blank');
             });
 
-
             markers.push(m);
           });
         }
@@ -152,52 +158,43 @@
       </script>
     </section>
 
-    <!-- 수연 ✅ Top3 영역 (공통 유지) -->
-    <%
-    StoreDAO storeDAO = new StoreDAO(conn);
-    List<Map<String, Object>> topStores = storeDAO.getTop3StoresWithCategory();
-    request.setAttribute("topStores", topStores);
-%>
+    <!-- 수연 ✅ Top3 영역 (공통 유지, DB연동 버전 유지) -->
+    <aside class="top-list">
+      <h3>서경인들의 맛집 TOP 3</h3>
+      
+      <c:forEach var="store" items="${topStores}">
+        <div class="top-card">
+          <a href="<%= request.getContextPath() %>/placeDetail?storeId=${store.storeId}" class="top-link">
+            <div class="top-info">
+              <div class="top-left">
+                <img src="<%= request.getContextPath() %>/resource/images/${store.categoryName}.png" alt="${store.categoryName}">
+              </div>
+              <div class="top-right">
+                <div class="top-name">${store.name}</div>
+                <div class="stars">
+                  <c:choose>
+                    <c:when test="${store.ratingAvg <= 1.5}">⭐ ☆ ☆ ☆ ☆</c:when>
+                    <c:when test="${store.ratingAvg <= 2.5}">⭐⭐ ☆ ☆ ☆</c:when>
+                    <c:when test="${store.ratingAvg <= 3.5}">⭐⭐⭐ ☆ ☆</c:when>
+                    <c:when test="${store.ratingAvg <= 4.5}">⭐⭐⭐⭐ ☆</c:when>
+                    <c:otherwise>⭐⭐⭐⭐⭐</c:otherwise>
+                  </c:choose>
+                </div>
 
-<aside class="top-list">
-  <h3>서경인들의 맛집 TOP 3</h3>
-  
-  <c:forEach var="store" items="${topStores}">
-    <div class="top-card">
-      <!-- 가게 상세 페이지로 이동할 수 있는 링크 추가 -->
-      <a href="<%= request.getContextPath() %>/placeDetail?storeId=${store.storeId}" class="top-link">
-        <div class="top-info">
-          <!-- 수정된 부분: 아이콘을 왼쪽에 두고 텍스트는 오른쪽으로 배치 -->
-          <div class="top-left">
-            <img src="<%= request.getContextPath() %>/resource/images/${store.categoryName}.png" alt="${store.categoryName}">
-          </div>
-          <div class="top-right">
-            <div class="top-name">${store.name}</div>
-            <!-- 별점 출력 -->
-            <div class="stars">
-              <c:choose>
-                <c:when test="${store.ratingAvg <= 1.5}">⭐ ☆ ☆ ☆ ☆</c:when>
-                <c:when test="${store.ratingAvg <= 2.5}">⭐⭐ ☆ ☆ ☆</c:when>
-                <c:when test="${store.ratingAvg <= 3.5}">⭐⭐⭐ ☆ ☆</c:when>
-                <c:when test="${store.ratingAvg <= 4.5}">⭐⭐⭐⭐ ☆</c:when>
-                <c:otherwise>⭐⭐⭐⭐⭐</c:otherwise>
-              </c:choose>
+                <div class="top-like">
+                  <span class="heart">❤️</span>
+                  <span>${store.likeCount}</span>
+                </div>
+
+                <div class="top-tag">#${store.categoryName}</div>
+              </div>
             </div>
-
-            <!-- 찜 개수 출력 -->
-			<div class="top-like">
-			  <span class="heart">❤️</span>
-			  <span>${store.likeCount}</span>
-			</div>
-
-            <!-- 카테고리 태그 출력 -->
-            <div class="top-tag">#${store.categoryName}</div>
-          </div>
+          </a>
         </div>
-      </a>
-    </div>
-  </c:forEach>
-</aside>
+      </c:forEach>
+    </aside>
+
+  </div>
 
   <!--수연 ✅ 마스코트 영역 (공통 유지) -->
   <div class="mascot-area">
@@ -214,7 +211,6 @@
   </div>
 
   <script>
-
     function openHelp() {
       document.getElementById('helpOverlay').style.display = 'flex';
     }
@@ -226,5 +222,3 @@
 
 </body>
 </html>
-
-

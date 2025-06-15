@@ -1,11 +1,25 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%@ page import="java.util.*" %>
-<%@ page import="java.sql.Connection" %>
-<%@ page import="com.babpool.dto.ReviewDTO" %>
-<%@ page import="com.babpool.dao.ReviewDAO" %>
-<%@ page import="com.babpool.utils.DBUtil" %>
+<%@ page import="java.sql.*, com.babpool.dao.*, com.babpool.dto.*, com.babpool.utils.DBUtil, java.util.*" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+
+<!-- 관리자 페이지 리뷰 - 동국 6/15 -->
+
+<%
+//임시 테스트 - 동국 이메일로 세션 허용 -> 추후에 web.xml - role  설정하기
+com.babpool.dto.UserDTO admin = (com.babpool.dto.UserDTO) session.getAttribute("loginUser");
+if (!admin.getEmail().equals("tndus10@skuniv.ac.kr")) {
+%>
+    <script>
+        alert("관리자만 입장 가능한 페이지입니다.");
+        location.href = "login.jsp";
+    </script>
+<%
+    return;
+}
+%>
+
+
 
 <!DOCTYPE html>
 <html lang="ko">
@@ -19,18 +33,18 @@
         <h2>리뷰 관리</h2>
 
         <!-- 전체 조회 -->
-        <form action="ReviewSelectAllServlet" method="get">
+        <form action="<%=request.getContextPath()%>/AdminReviewSelectAllServlet" method="get">
             <button type="submit" class="btn">전체 조회</button>
         </form>
 
         <!-- 단일 조회 -->
-        <form action="ReviewSelectByIdServlet" method="get">
+        <form action="<%=request.getContextPath()%>/AdminReviewSelectByIdServlet" method="get">
             <input type="number" name="reviewId" placeholder="리뷰 ID 입력" required />
             <button type="submit" class="btn">선택 조회</button>
         </form>
 
         <!-- 수정 -->
-        <form action="ReviewUpdateServlet" method="post">
+        <form action="<%=request.getContextPath()%>/AdminReviewUpdateServlet" method="post">
             <input type="number" name="reviewId" placeholder="수정할 리뷰 ID" required />
             <input type="text" name="content" placeholder="리뷰 내용 수정" />
             <button type="submit" class="btn">수정</button>
@@ -50,7 +64,7 @@
         </c:if>
 
         <!-- 삭제 -->
-        <form action="ReviewDeleteServlet" method="post">
+        <form action="<%=request.getContextPath()%>/AdminReviewDeleteServlet" method="post">
             <input type="number" name="reviewId" placeholder="삭제할 리뷰 ID" required />
             <button type="submit" class="btn">삭제</button>
         </form>

@@ -1,5 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ page import="jakarta.servlet.http.HttpSession" %>
+<%@ page import="com.babpool.dto.*, com.babpool.utils.DBUtil" %>
 
 <%-- <%
     // 이미 기본으로 제공되는 session 객체 사용
@@ -12,6 +13,32 @@
         return;
     }
 %> --%>
+
+<%
+    // 임시 세션 - mainPage에서 세션 남겨주기 -동국 6/14
+    UserDTO admin = new UserDTO();
+    admin.setEmail("tndus10@skuniv.ac.kr");
+
+    // 세션에 저장 (실제 로그인시에도 이렇게 저장됨)
+    session.setAttribute("loginUser", admin);
+%>
+
+
+
+<%
+//임시 테스트 - 동국 이메일로 세션 허용 -> 추후에 web.xml - role  설정하기
+admin = (com.babpool.dto.UserDTO) session.getAttribute("loginUser");
+if (!admin.getEmail().equals("tndus10@skuniv.ac.kr")) {
+%>
+    <script>
+        alert("관리자만 입장 가능한 페이지입니다.");
+        location.href = "login.jsp";
+    </script>
+
+<%
+    return;
+}
+%>
 
 <!DOCTYPE html>
 <html lang="ko">

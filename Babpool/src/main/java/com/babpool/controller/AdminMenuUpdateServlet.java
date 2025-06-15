@@ -9,26 +9,26 @@ import jakarta.servlet.http.*;
 import java.io.IOException;
 import java.sql.Connection;
 
-@WebServlet("/MenuInsertServlet")
-public class MenuInsertServlet extends HttpServlet {
+@WebServlet("/AdminMenuUpdateServlet")
+public class AdminMenuUpdateServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         Connection conn = null;
         try {
             request.setCharacterEncoding("UTF-8");
 
-            int storeId = Integer.parseInt(request.getParameter("storeId"));
+            int menuId = Integer.parseInt(request.getParameter("menuId"));
             String name = request.getParameter("name");
-            int price = Integer.parseInt(request.getParameter("price"));
-
-            MenuDTO dto = new MenuDTO();
-            dto.setStoreId(storeId);
-            dto.setName(name);
-            dto.setPrice(price);
+            String priceStr = request.getParameter("price");
 
             conn = DBUtil.getConnection();
             MenuDAO dao = new MenuDAO(conn);
-            dao.insertMenu(dto);
+            MenuDTO dto = dao.getMenuById(menuId);
 
+            if (dto != null) {
+                if (!name.isEmpty()) dto.setName(name);
+                if (!priceStr.isEmpty()) dto.setPrice(Integer.parseInt(priceStr));
+                dao.updateMenu(dto);
+            }
             response.sendRedirect("manageStorePage.jsp");
         } catch (Exception e) {
             e.printStackTrace();

@@ -10,18 +10,23 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.util.List;
 
-@WebServlet("/ReviewSelectAllServlet")
-public class ReviewSelectAllServlet extends HttpServlet {
+//관리자 페이지 리뷰 - 동국 6/15
+
+@WebServlet("/AdminReviewSelectAllServlet")
+public class AdminReviewSelectAllServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         Connection conn = null;
         try {
             conn = DBUtil.getConnection();
             ReviewDAO dao = new ReviewDAO(conn);
-            List<ReviewDTO> list = dao.getAllReviews();
-            request.setAttribute("reviewList", list);
+            List<ReviewDTO> reviewList = dao.getAllReviews();
+
+            request.setAttribute("reviewList", reviewList);
+            request.getRequestDispatcher("manageReviewPage.jsp").forward(request, response);
         } catch (Exception e) {
             e.printStackTrace();
-        } finally { try { if (conn != null) conn.close(); } catch (Exception e) {} }
-        request.getRequestDispatcher("manageReviewPage.jsp").forward(request, response);
+        } finally {
+            try { if (conn != null) conn.close(); } catch (Exception e) {}
+        }
     }
 }

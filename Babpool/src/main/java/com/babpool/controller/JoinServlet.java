@@ -25,7 +25,10 @@ public class JoinServlet extends HttpServlet {
 
         String nickname = request.getParameter("nickname");
         String email = request.getParameter("email");
-        String password = request.getParameter("password");
+        // - 동국 06/14 입력부 수정
+        String password = request.getParameter("password")
+        		.replaceAll("[^\\p{Print}]", "")
+        	    .trim();
 
         // 비밀번호 SHA-256 해싱
         String hashedPassword = SHA256Util.encrypt(password);

@@ -9,24 +9,28 @@ import jakarta.servlet.http.*;
 import java.io.IOException;
 import java.sql.Connection;
 
-@WebServlet("/StoreInsertServlet")
-public class StoreInsertServlet extends HttpServlet {
+@WebServlet("/AdminStoreUpdateServlet")
+public class AdminStoreUpdateServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         Connection conn = null;
         try {
             request.setCharacterEncoding("UTF-8");
-            StoreDTO dto = new StoreDTO();
-            dto.setName(request.getParameter("name"));
-            dto.setAddress(request.getParameter("address"));
-            dto.setPhone(request.getParameter("phone"));
-            dto.setOpenTime(request.getParameter("openTime"));
-            dto.setRatingAvg(0);
-            dto.setReviewCount(0);
-            dto.setLikeCount(0);
+            int storeId = Integer.parseInt(request.getParameter("storeId"));
+            String name = request.getParameter("name");
+            String address = request.getParameter("address");
+            String phone = request.getParameter("phone");
+            String openTime = request.getParameter("openTime");
 
             conn = DBUtil.getConnection();
             StoreDAO dao = new StoreDAO(conn);
-            dao.insertStore(dto);
+            StoreDTO store = dao.getStoreById(storeId);
+            if (store != null) {
+                if (!name.isEmpty()) store.setName(name);
+                if (!address.isEmpty()) store.setAddress(address);
+                if (!phone.isEmpty()) store.setPhone(phone);
+                if (!openTime.isEmpty()) store.setOpenTime(openTime);
+                dao.updateStore(store);
+            }
             response.sendRedirect("manageStorePage.jsp");
         } catch (Exception e) {
             e.printStackTrace();

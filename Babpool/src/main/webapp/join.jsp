@@ -93,7 +93,7 @@
     </form> -->
 
 	<!-- 회원가입 form -->
-	<form action="JoinServlet" method="post" onsubmit="return validateForm();">
+	<form action="<%= request.getContextPath() %>/JoinServlet" method="post" onsubmit="return validateForm();">
 	    <div class="form-group">
 	        <label for="nickname">닉네임</label>
 	        <input type="text" id="nickname" name="nickname" required>

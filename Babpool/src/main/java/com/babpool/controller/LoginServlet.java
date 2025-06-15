@@ -71,9 +71,11 @@ public class LoginServlet extends HttpServlet {
         // 1. 한글 인코딩
         request.setCharacterEncoding("UTF-8");
 
-        // 2. 입력값 받기
+        // 2. 입력값 받기 - 동국 06/14 입력부 수정
         String email = request.getParameter("email");
-        String password = request.getParameter("password");
+        String password = request.getParameter("password")
+        		.replaceAll("[^\\p{Print}]", "")
+        	    .trim();
 
         // 3. SHA-256 해싱
         String hashedPassword = SHA256Util.encrypt(password);

@@ -11,8 +11,8 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.util.List;
 
-@WebServlet("/UserSelectAllServlet")
-public class UserSelectAllServlet extends HttpServlet {
+@WebServlet("/AdminUserSelectAllServlet")
+public class AdminUserSelectAllServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         Connection conn = null;
         try {

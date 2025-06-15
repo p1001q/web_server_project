@@ -9,8 +9,10 @@ import jakarta.servlet.http.*;
 import java.io.IOException;
 import java.sql.Connection;
 
-@WebServlet("/ReviewSelectByIdServlet")
-public class ReviewSelectByIdServlet extends HttpServlet {
+//관리자 페이지 리뷰 - 동국 6/15
+
+@WebServlet("/AdminReviewSelectByIdServlet")
+public class AdminReviewSelectByIdServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         Connection conn = null;
         try {
@@ -18,10 +20,13 @@ public class ReviewSelectByIdServlet extends HttpServlet {
             conn = DBUtil.getConnection();
             ReviewDAO dao = new ReviewDAO(conn);
             ReviewDTO review = dao.getReviewById(reviewId);
+
             request.setAttribute("reviewOne", review);
+            request.getRequestDispatcher("manageReviewPage.jsp").forward(request, response);
         } catch (Exception e) {
             e.printStackTrace();
-        } finally { try { if (conn != null) conn.close(); } catch (Exception e) {} }
-        request.getRequestDispatcher("manageReviewPage.jsp").forward(request, response);
+        } finally {
+            try { if (conn != null) conn.close(); } catch (Exception e) {}
+        }
     }
 }
